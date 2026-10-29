@@ -1,10 +1,11 @@
 """รวมตัวเลขตาม logic ของหน้าเว็บ และตรวจความสอดคล้องของผลรวม"""
 from __future__ import annotations
 
+import json
 import logging
 from typing import Any, Dict, Iterable, List, Mapping, Optional
 
-from .config import EndpointSpec
+from .config import SummarySpec
 
 log = logging.getLogger(__name__)
 
@@ -47,7 +48,7 @@ def _has_field(rows: Iterable[Mapping[str, Any]], name: str) -> bool:
     return any(k.lower() == lowered for row in rows for k in row)
 
 
-def aggregate(spec: EndpointSpec, rows: List[Mapping[str, Any]]) -> Dict[str, int]:
+def aggregate(spec: SummarySpec, rows: List[Mapping[str, Any]]) -> Dict[str, int]:
     """คืนค่า {metric: value} ตาม spec.aggregate
 
     - "last": ใช้แถวสุดท้าย (เหมือน loop เขียนทับใน home.component.ts)
@@ -98,3 +99,19 @@ def validate(category: str, values: Mapping[str, int]) -> List[str]:
     if parts != total:
         warnings.append(f"{category}: {label} = {parts:,} ไม่เท่ากับ total = {total:,}")
     return warnings
+
+
+def flatten_row(row: Mapping[str, Any], prefix: str = "") -> Dict[str, Any]:
+    """แปลง dict ซ้อนเป็นคอลัมน์ "a.b" และ list เป็น JSON string (เพื่อเขียน CSV ได้)"""
+    flat: Dict[str, Any] = {}
+    for key, value in row.items():
+        name = f"{prefix}{key}"
+        if isinstance(value, Mapping):
+            flat.update(flatten_row(value, prefix=name + "."))
+        elif isinstance(value, (list, tuple)):
+            flat[name] = json.dumps(value, ensure_ascii=False)
+        elif value is None:
+            flat[name] = ""
+        else:
+            flat[name] = value
+    return flat

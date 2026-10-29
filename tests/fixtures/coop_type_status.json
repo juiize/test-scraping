@@ -1,0 +1,12 @@
+[
+  {
+    "coopType": "1",
+    "active": 3000,
+    "nonActive": 800
+  },
+  {
+    "coopType": "4",
+    "active": 1300,
+    "nonActive": 100
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "groupCode": "1",
+    "total_count": 1500000,
+    "total_rai": 9000000
+  },
+  {
+    "groupCode": "2",
+    "total_count": 300000,
+    "total_rai": 0
+  },
+  {
+    "groupCode": "3",
+    "total_count": 50000,
+    "total_rai": 120000
+  }
+]

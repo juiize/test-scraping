@@ -1,0 +1,16 @@
+[
+  {
+    "coopType": "1",
+    "asset": 500000,
+    "debt": 300000,
+    "capital": 200000,
+    "profit": 12000
+  },
+  {
+    "coopType": "4",
+    "asset": 2800000,
+    "debt": 1700000,
+    "capital": 1100000,
+    "profit": 70000
+  }
+]

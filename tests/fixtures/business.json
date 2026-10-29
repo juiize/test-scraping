@@ -1,0 +1,10 @@
+[
+  {
+    "dataYear": "2568",
+    "business": {
+      "deposit": 100.5,
+      "loan": 200.25
+    },
+    "total": 300.75
+  }
+]

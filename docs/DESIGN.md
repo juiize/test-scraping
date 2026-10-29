@@ -2,7 +2,7 @@
 
 > เป้าหมาย: ดึงตัวเลขจากหน้าแรกของ https://bigdata.cpd.go.th/ (จำนวนสหกรณ์, สมาชิก, กรรมการ, เจ้าหน้าที่) ด้วย Python แล้วบันทึกเป็น CSV
 > Repo: https://github.com/juiize/test-scraping
-> สถานะ: ออกแบบเสร็จแล้ว ยังไม่ได้เขียนโค้ด
+> สถานะ: v2 ดึงทั้งหน้าแรก (แท็บข้อมูลทั่วไป) ดูข้อ 9
 
 ---
 
@@ -205,3 +205,45 @@ Unit test จะใช้ fixture JSON และ assert ว่าผลลัพ
 ## 8. ต่อยอด (เฟส 2)
 - ข้อมูลรายจังหวัดจากแผนที่: `api/ProfileData/GetOracleSumProvinceYearSearch`, `api/Member/GetCoopMemberProvinceYearSearch`, `api/BusinessData/GetBussinessProvinceYearSum`
 - ตั้ง schedule ให้รันรายวันหรือรายเดือน เก็บเป็น time series
+
+---
+
+## 9. v2: ดึงทั้งหน้าแรก (แท็บ "ข้อมูลทั่วไป")
+
+จากการไล่ `home.component.ts` ทั้งไฟล์ (template + method ที่เรียก service) หน้าแรกใช้ endpoint ทั้งหมด 21 ตัว:
+
+| key | endpoint | query | หมายเหตุ |
+|---|---|---|---|
+| coop_count | CoopProfile/GetCoopOracleCountNEW | - | การ์ดจำนวนสหกรณ์ |
+| member_sum | Member/GetCoopSumMemberNew | year, sector | การ์ดสมาชิก |
+| committee_sum | CoopCommittee/GetCoopSumCommitteeNew | year, sector | การ์ดกรรมการ |
+| officer_sum | ProfileData/GetCoopSumOfficer | year, sector (non_sector) | การ์ดเจ้าหน้าที่ |
+| map_coop_province | ProfileData/GetOracleSumProvinceYearSearch | - | แผนที่ (provinceName, sum, active, nonActive) |
+| map_member_province | Member/GetCoopMemberProvinceYearSearch | year, sector | แผนที่ (provinceName, sum) |
+| map_business_province | BusinessData/GetBussinessProvinceYearSum | year, sector | แผนที่ (provinceName, sum) ล้านบาท |
+| standard_type | StandardData/GetCoopStandardTypeSum | year, sector | coopType, pass, notPass |
+| coop_type_status | CoopProfile/GetCoopOracleTypesNEW | year, sector | |
+| coop_type_level | CoopProfile/GetCoopTypeLevelCount | year, sector | level, count |
+| coop_level | CoopProfile/GetCoopLevelCountNEW | year, sector | |
+| finance | CoopProfile/GetCoopFinanceNew | year_change, sector | สินทรัพย์/หนี้สิน/ทุน/กำไร |
+| finance_type | CoopProfile/GetCoopFinanceTypeNew | year_change, sector | |
+| business | CoopProfile/GetCoopBussinessNew | year_change, sector | |
+| business_type | CoopProfile/GetCoopBussinessTypeNew | year_change, sector | |
+| participation | CoopProfile/GetCoopProfileBussinessNew | year_change, sector | การมีส่วนร่วม |
+| participation_type | CoopProfile/GetCoopProfileBussinessTypeNew | year_change, sector | |
+| oae_group | View/GetViewOAEByGroup | year_change, sector | groupCode, total_count, total_rai |
+| oae_detail | View/GetViewOAEDetailByGroup | year_change, sector | body + groupCode "1"/"2"/"3" |
+| rubber | View/GetViewRubberSumProvinceTotal | year_change, sector | total_count, total_rai |
+| defect_province | Defect/GetDefectProvinceYearSum | sector | ปิดโดยค่าเริ่มต้น (หน้าเว็บแสดงเฉพาะผู้ล็อกอิน) |
+
+ข้อสังเกต:
+- `callable.setPathParam(URL, true)` ใช้ key **`year_change`** แทน `year`
+- `GetDefectProvinceYearSum` ในหน้าเว็บต่อ `&sector=` โดยไม่มี `?` นำหน้า (URL ผิดรูป) scraper ส่งเป็น `?sector=` ที่ถูกต้องแทน
+- แท็บ "ค้นหาข้อมูลราย เขต / ภาค", "อุปกรณ์การตลาด", "เครื่องจักรกลการเกษตร" เป็นคนละ route ไม่อยู่ในขอบเขตนี้
+
+การเก็บข้อมูล:
+- เก็บ **ทุกแถว ทุกฟิลด์** ของแต่ละ endpoint ลง `data/sections/<key>.csv` (flatten JSON ซ้อนเป็น `a.b`)
+- รวมทุกค่าเป็นไฟล์เดียวแบบ long ที่ `data/cpd_page_long.csv`
+- การ์ดสรุป 4 ใบยังคำนวณแบบเดิมที่ `data/cpd_summary.csv` / `cpd_summary_wide.csv`
+- `data/run_log.csv` บันทึกผลทุก request; ถ้า endpoint ใดล้ม ส่วนอื่นยังเขียนไฟล์ได้ (exit code 1)
+- section ที่ไม่ขึ้นกับปี/ภาคเรียกครั้งเดียว และ request ที่ซ้ำกันจะใช้ cache

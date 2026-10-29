@@ -1,0 +1,28 @@
+{
+  "1": [
+    {
+      "typeDetail": "ข้าว",
+      "total_count": 900000,
+      "total_rai": 6000000
+    },
+    {
+      "typeDetail": "มันสำปะหลัง",
+      "total_count": 200000,
+      "total_rai": 1500000
+    }
+  ],
+  "2": [
+    {
+      "typeDetail": "โคเนื้อ",
+      "total_count": 150000,
+      "total_rai": 0
+    }
+  ],
+  "3": [
+    {
+      "typeDetail": "กุ้ง",
+      "total_count": 30000,
+      "total_rai": 80000
+    }
+  ]
+}

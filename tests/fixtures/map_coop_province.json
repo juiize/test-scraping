@@ -1,0 +1,14 @@
+[
+  {
+    "provinceName": "กรุงเทพมหานคร",
+    "sum": 1200,
+    "active": 1000,
+    "nonActive": 200
+  },
+  {
+    "provinceName": "เชียงใหม่",
+    "sum": 350,
+    "active": 300,
+    "nonActive": 50
+  }
+]

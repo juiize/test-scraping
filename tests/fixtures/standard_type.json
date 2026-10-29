@@ -1,0 +1,12 @@
+[
+  {
+    "coopType": "1",
+    "pass": 2500,
+    "notPass": 300
+  },
+  {
+    "coopType": "4",
+    "pass": 1200,
+    "notPass": 80
+  }
+]
